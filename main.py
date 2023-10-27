@@ -2,10 +2,15 @@ import pygame
 from pygame.locals import *
 import time
 import random
+import os
 
 SIZE = 40
 start_length = 1
 WHITE = (255, 255, 255)
+
+pygame.mixer.init()
+DING_SOUND = pygame.mixer.Sound(os.path.join('python_games', 'snakeGame', 'resources', 'ding.mp3'))
+CRASH_SOUND = pygame.mixer.Sound(os.path.join('python_games', 'snakeGame', 'resources', 'crash.mp3'))
 
 class Apple:
     def __init__(self, parent_screen):
@@ -100,14 +105,17 @@ class Game:
         pygame.display.flip()
     
         if self.is_collision(self.snake.x[0], self.snake.y[0], self.apple.x, self.apple.y):
+            DING_SOUND.play()
             self.snake.increase_length()
             self.apple.move()
             
         for i in range(1, self.snake.length):
             if self.is_collision(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i]):
+                CRASH_SOUND.play()
                 raise "Game over. "
             
         if self.out_of_bound(self.snake.x[0], self.snake.y[0]):
+            CRASH_SOUND.play()
             raise "Game over. "
             
     def display_score(self):
