@@ -89,8 +89,7 @@ class Game:
         if 0 <= x < 800:
             if 0 <= y < 800:
                 return False
-        else:
-            return True
+        return True
             
         
     def play(self):
