@@ -7,14 +7,19 @@ import os
 SIZE = 40
 start_length = 1
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 pygame.mixer.init()
-DING_SOUND = pygame.mixer.Sound(os.path.join('python_games', 'snakeGame', 'resources', 'ding.mp3'))
-CRASH_SOUND = pygame.mixer.Sound(os.path.join('python_games', 'snakeGame', 'resources', 'crash.mp3'))
+EATING_SOUND = pygame.mixer.Sound(os.path.join('python_games', 'snakeGame', 'resources', 'eating.mp3'))
+LOSE_SOUND = pygame.mixer.Sound(os.path.join('python_games', 'snakeGame', 'resources', 'lose.mp3'))
+BG_MUSIC = pygame.mixer.Sound(os.path.join('python_games', 'snakeGame', 'resources', 'bgm.mp3'))
+
+BG = pygame.transform.scale(pygame.image.load(os.path.join('python_games', 'snakeGame', 'resources', 'background_image.jpg')), (800, 800))
 
 class Apple:
     def __init__(self, parent_screen):
-        self.image = pygame.image.load("C:/workspace/python_games/snakeGame/resources/apple.jpg").convert()
+        self.image = pygame.transform.scale(
+            pygame.image.load(os.path.join('python_games', 'snakeGame', 'resources', 'apple.png')), (40, 40))      
         self.parent_screen = parent_screen
         self.x = SIZE * 3
         self.y = SIZE * 3
@@ -71,7 +76,7 @@ class Snake:
         self.draw()
         
     def draw(self):
-        self.parent_win.fill(WHITE)
+        self.parent_win.blit(BG, (0, 0))
         for i in range(self.length):
             self.parent_win.blit(self.block, (self.x[i], self.y[i]))
             pygame.display.flip()
@@ -98,37 +103,37 @@ class Game:
             
         
     def play(self):
-        self.win.fill(WHITE)
+        self.win.blit(BG, (0, 0))
         self.snake.walk()
         self.apple.draw()
         self.display_score()
         pygame.display.flip()
     
         if self.is_collision(self.snake.x[0], self.snake.y[0], self.apple.x, self.apple.y):
-            DING_SOUND.play()
+            EATING_SOUND.play()
             self.snake.increase_length()
             self.apple.move()
             
         for i in range(1, self.snake.length):
             if self.is_collision(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i]):
-                CRASH_SOUND.play()
+                LOSE_SOUND.play()
                 raise "Game over. "
             
         if self.out_of_bound(self.snake.x[0], self.snake.y[0]):
-            CRASH_SOUND.play()
+            LOSE_SOUND.play()
             raise "Game over. "
             
     def display_score(self):
         font =pygame.font.SysFont('arial', 30)
-        score = font.render(f"Score: {self.snake.length}", True, (0, 0, 0))
+        score = font.render(f"Score: {self.snake.length}", True, WHITE)
         self.win.blit(score, (0, 0))
     
     def show_game_over(self):
-        self.win.fill(WHITE)
+        self.win.fill(BLACK)
         font = pygame.font.SysFont('arial', 30)
-        game_over_score = font.render(f"Game over, your score was {self.snake.length}", True, (0, 0, 0))
+        game_over_score = font.render(f"Game over, your score was {self.snake.length}", True, WHITE)
         self.win.blit(game_over_score, (200, 100))
-        replay_text = font.render("To play again press Enter, to exit press Esc!", True, (0, 0, 0))
+        replay_text = font.render("To play again press Enter, to exit press Esc!", True, WHITE)
         self.win.blit(replay_text, (100, 220))
         pygame.display.flip() 
         
@@ -141,6 +146,7 @@ class Game:
     def run(self):
             run = True
             pause = False
+            BG_MUSIC.play()
             while run:
                 for event in pygame.event.get():
                     if event.type == KEYDOWN:
